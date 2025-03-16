@@ -1,9 +1,12 @@
 package provider
 
 import (
+	"context"
+	neo4j "followservice/infrastructure/database"
 	"followservice/infrastructure/kafka"
 	"followservice/internal/api"
 	"followservice/internal/bus"
+	database "followservice/internal/db"
 )
 
 type Provider struct {
@@ -37,6 +40,10 @@ func (p *Provider) ProvideApiEndpoint() *api.Api {
 
 func (p *Provider) ProvideApiControllers() []api.Controller {
 	return []api.Controller{}
+}
+
+func (p *Provider) ProvideDb(ctx context.Context) *database.Database {
+	return database.NewDatabase(neo4j.NewNeo4jClient("bolt://localhost:7687", "neo4j", "contrasinal", ctx))
 }
 
 func (p *Provider) kafkaBrokers() []string {

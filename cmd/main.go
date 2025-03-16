@@ -38,11 +38,12 @@ func main() {
 	log.Info().Msgf("Starting FollowService service in [%s] enviroment...\n", env)
 
 	provider := provider.NewProvider(env)
+	_ = provider.ProvideDb(ctx)
 	eventBus, err := provider.ProvideEventBus()
-	subscriptions := provider.ProvideSubscriptions()
 	if err != nil {
 		os.Exit(1)
 	}
+	subscriptions := provider.ProvideSubscriptions()
 
 	apiEnpoint := provider.ProvideApiEndpoint()
 

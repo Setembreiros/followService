@@ -4,6 +4,7 @@ import (
 	"context"
 	"followservice/cmd/provider"
 	"followservice/internal/api"
+	"followservice/internal/bus"
 	"os"
 	"os/signal"
 	"strings"
@@ -37,9 +38,15 @@ func main() {
 	log.Info().Msgf("Starting FollowService service in [%s] enviroment...\n", env)
 
 	provider := provider.NewProvider(env)
+	eventBus, err := provider.ProvideEventBus()
+	subscriptions := provider.ProvideSubscriptions()
+	if err != nil {
+		os.Exit(1)
+	}
 
 	apiEnpoint := provider.ProvideApiEndpoint()
 
+	app.runConfigurationTasks(subscriptions, eventBus)
 	app.runServerTasks(apiEnpoint)
 }
 
@@ -55,6 +62,12 @@ func (app *app) configuringLog() {
 	log.Logger = log.With().Caller().Logger()
 }
 
+func (app *app) runConfigurationTasks(subscriptions *[]bus.EventSubscription, eventBus *bus.EventBus) {
+	app.configuringTasks.Add(2)
+	go app.subcribeEvents(subscriptions, eventBus) // Always subscribe event before init Kafka
+	app.configuringTasks.Wait()
+}
+
 func (app *app) runServerTasks(apiEnpoint *api.Api) {
 	app.runningTasks.Add(1)
 	go app.runApiEndpoint(apiEnpoint)
@@ -62,6 +75,19 @@ func (app *app) runServerTasks(apiEnpoint *api.Api) {
 	blockForever()
 
 	app.shutdown()
+}
+
+func (app *app) subcribeEvents(subscriptions *[]bus.EventSubscription, eventBus *bus.EventBus) {
+	defer app.configuringTasks.Done()
+
+	log.Info().Msg("Subscribing events...")
+
+	for _, subscription := range *subscriptions {
+		eventBus.Subscribe(&subscription, app.ctx)
+		log.Info().Msgf("%s subscribed", subscription.EventType)
+	}
+
+	log.Info().Msg("All events subscribed")
 }
 
 func (app *app) runApiEndpoint(apiEnpoint *api.Api) {

@@ -39,6 +39,7 @@ func main() {
 
 	provider := provider.NewProvider(env)
 	_ = provider.ProvideDb(ctx)
+	_ = provider.ProvideCache(ctx)
 	eventBus, err := provider.ProvideEventBus()
 	if err != nil {
 		os.Exit(1)

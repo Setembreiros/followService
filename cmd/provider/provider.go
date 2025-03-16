@@ -2,7 +2,7 @@ package provider
 
 import (
 	"context"
-	neo4j "followservice/infrastructure/database"
+	dbInfra "followservice/infrastructure/database"
 	"followservice/infrastructure/kafka"
 	"followservice/internal/api"
 	"followservice/internal/bus"
@@ -43,7 +43,11 @@ func (p *Provider) ProvideApiControllers() []api.Controller {
 }
 
 func (p *Provider) ProvideDb(ctx context.Context) *database.Database {
-	return database.NewDatabase(neo4j.NewNeo4jClient("bolt://localhost:7687", "neo4j", "contrasinal", ctx))
+	return database.NewDatabase(dbInfra.NewNeo4jClient("bolt://localhost:7687", "neo4j", "contrasinal", ctx))
+}
+
+func (p *Provider) ProvideCache(ctx context.Context) *database.Cache {
+	return database.NewCache(dbInfra.NewRedisClient("localhost:6379", "", ctx))
 }
 
 func (p *Provider) kafkaBrokers() []string {

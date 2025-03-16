@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"followservice/cmd/provider"
+	"followservice/internal/api"
 	"os"
 	"os/signal"
 	"strings"
@@ -34,7 +36,11 @@ func main() {
 
 	log.Info().Msgf("Starting FollowService service in [%s] enviroment...\n", env)
 
-	app.runServerTasks()
+	provider := provider.NewProvider(env)
+
+	apiEnpoint := provider.ProvideApiEndpoint()
+
+	app.runServerTasks(apiEnpoint)
 }
 
 func (app *app) configuringLog() {
@@ -49,10 +55,23 @@ func (app *app) configuringLog() {
 	log.Logger = log.With().Caller().Logger()
 }
 
-func (app *app) runServerTasks() {
+func (app *app) runServerTasks(apiEnpoint *api.Api) {
+	app.runningTasks.Add(1)
+	go app.runApiEndpoint(apiEnpoint)
+
 	blockForever()
 
 	app.shutdown()
+}
+
+func (app *app) runApiEndpoint(apiEnpoint *api.Api) {
+	defer app.runningTasks.Done()
+
+	err := apiEnpoint.Run(app.ctx)
+	if err != nil {
+		log.Panic().Err(err).Msg("Closing FollowService Api failed")
+	}
+	log.Info().Msg("FollowService Api stopped")
 }
 
 func blockForever() {

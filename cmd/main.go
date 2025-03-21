@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
-	"followservice/cmd/provider"
-	"followservice/internal/api"
-	"followservice/internal/bus"
 	"os"
 	"os/signal"
 	"strings"
 	"sync"
 	"syscall"
+
+	"followservice/cmd/provider"
+	"followservice/infrastructure/kafka"
+	"followservice/internal/api"
+	"followservice/internal/bus"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -45,11 +47,14 @@ func main() {
 		os.Exit(1)
 	}
 	subscriptions := provider.ProvideSubscriptions()
-
 	apiEnpoint := provider.ProvideApiEndpoint()
+	kafkaConsumer, err := provider.ProvideKafkaConsumer(eventBus)
+	if err != nil {
+		os.Exit(1)
+	}
 
 	app.runConfigurationTasks(subscriptions, eventBus)
-	app.runServerTasks(apiEnpoint)
+	app.runServerTasks(kafkaConsumer, apiEnpoint)
 }
 
 func (app *app) configuringLog() {
@@ -65,13 +70,14 @@ func (app *app) configuringLog() {
 }
 
 func (app *app) runConfigurationTasks(subscriptions *[]bus.EventSubscription, eventBus *bus.EventBus) {
-	app.configuringTasks.Add(2)
+	app.configuringTasks.Add(1)
 	go app.subcribeEvents(subscriptions, eventBus) // Always subscribe event before init Kafka
 	app.configuringTasks.Wait()
 }
 
-func (app *app) runServerTasks(apiEnpoint *api.Api) {
-	app.runningTasks.Add(1)
+func (app *app) runServerTasks(kafkaConsumer *kafka.KafkaConsumer, apiEnpoint *api.Api) {
+	app.runningTasks.Add(2)
+	go app.initKafkaConsumption(kafkaConsumer)
 	go app.runApiEndpoint(apiEnpoint)
 
 	blockForever()
@@ -90,6 +96,16 @@ func (app *app) subcribeEvents(subscriptions *[]bus.EventSubscription, eventBus 
 	}
 
 	log.Info().Msg("All events subscribed")
+}
+
+func (app *app) initKafkaConsumption(kafkaConsumer *kafka.KafkaConsumer) {
+	defer app.runningTasks.Done()
+
+	err := kafkaConsumer.InitConsumption(app.ctx)
+	if err != nil {
+		log.Panic().Stack().Err(err).Msg("Kafka Consumption failed")
+	}
+	log.Info().Msg("Kafka Consumer Group stopped")
 }
 
 func (app *app) runApiEndpoint(apiEnpoint *api.Api) {

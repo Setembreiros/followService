@@ -11,6 +11,7 @@ require (
 	github.com/neo4j/neo4j-go-driver/v5 v5.28.0
 	github.com/redis/go-redis/v9 v9.7.1
 	github.com/rs/zerolog v1.33.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
@@ -50,6 +51,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect

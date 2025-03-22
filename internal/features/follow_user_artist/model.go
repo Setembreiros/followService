@@ -4,3 +4,8 @@ type UserPairFollowRelation struct {
 	FollowerID string `json:"followerId"`
 	FolloweeID string `json:"followeeId"`
 }
+
+type UserAFollowedUserBEvent struct {
+	FollowerID string `json:"followerId"`
+	FolloweeID string `json:"followeeId"`
+}

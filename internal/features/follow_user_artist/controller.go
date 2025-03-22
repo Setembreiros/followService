@@ -25,7 +25,7 @@ func NewFollowUserArtistController(service Service) *FollowUserArtistController 
 }
 
 func (controller *FollowUserArtistController) Routes(routerGroup *gin.RouterGroup) {
-	routerGroup.POST("/post", controller.FollowUserArtist)
+	routerGroup.POST("/follow", controller.FollowUserArtist)
 }
 
 func (controller *FollowUserArtistController) FollowUserArtist(c *gin.Context) {

@@ -7,6 +7,7 @@ import (
 	"followservice/internal/api"
 	"followservice/internal/bus"
 	database "followservice/internal/db"
+	follow_user_artist "followservice/internal/features/follow_user_artist"
 )
 
 type Provider struct {
@@ -40,12 +41,14 @@ func (p *Provider) ProvideKafkaConsumer(eventBus *bus.EventBus) (*kafka.KafkaCon
 	return kafka.NewKafkaConsumer(brokers, eventBus)
 }
 
-func (p *Provider) ProvideApiEndpoint() *api.Api {
-	return api.NewApiEndpoint(p.env, p.ProvideApiControllers())
+func (p *Provider) ProvideApiEndpoint(database *database.Database, bus *bus.EventBus) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(database, bus))
 }
 
-func (p *Provider) ProvideApiControllers() []api.Controller {
-	return []api.Controller{}
+func (p *Provider) ProvideApiControllers(database *database.Database, bus *bus.EventBus) []api.Controller {
+	return []api.Controller{
+		follow_user_artist.NewFollowUserArtistController(follow_user_artist.NewFollowUserArtistService(follow_user_artist.NewFollowUserArtistRepository(database), bus)),
+	}
 }
 
 func (p *Provider) ProvideDb(ctx context.Context) *database.Database {
@@ -57,7 +60,7 @@ func (p *Provider) ProvideCache(ctx context.Context) *database.Cache {
 }
 
 func (p *Provider) kafkaBrokers() []string {
-	if p.env == "development" {
+	if p.env == "development" || p.env == "test" {
 		return []string{
 			"localhost:9093",
 		}

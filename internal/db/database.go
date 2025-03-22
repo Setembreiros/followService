@@ -9,6 +9,8 @@ type Database struct {
 }
 
 type DatabaseClient interface {
+	Clean()
+	RelationshipExists(userPair *model.UserPairRelationship) (bool, error)
 	CreateRelationship(relationship *model.UserPairRelationship) error
 }
 

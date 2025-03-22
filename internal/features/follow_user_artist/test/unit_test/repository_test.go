@@ -1,4 +1,4 @@
-package test_follow_user_artist
+package unit_test_follow_user_artist
 
 import (
 	"errors"

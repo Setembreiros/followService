@@ -38,7 +38,7 @@ func (s *FollowUserArtistService) FollowUserArtist(userPair *model.UserPairRelat
 		return err
 	}
 
-	log.Error().Stack().Err(err).Msgf("User pair relation was created, %s -> %s", userPair.FollowerID, userPair.FolloweeID)
+	log.Info().Msgf("User pair relation was created, %s -> %s", userPair.FollowerID, userPair.FolloweeID)
 
 	return nil
 }

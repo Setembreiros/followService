@@ -2,6 +2,7 @@ package follow_user_artist
 
 import (
 	"followservice/internal/api"
+	model "followservice/internal/model/domain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
@@ -14,7 +15,7 @@ type FollowUserArtistController struct {
 }
 
 type Service interface {
-	FollowUserArtist(userPair *UserPairFollowRelation) error
+	FollowUserArtist(userPair *model.UserPairRelationship) error
 }
 
 func NewFollowUserArtistController(service Service) *FollowUserArtistController {
@@ -29,7 +30,7 @@ func (controller *FollowUserArtistController) Routes(routerGroup *gin.RouterGrou
 
 func (controller *FollowUserArtistController) FollowUserArtist(c *gin.Context) {
 	log.Info().Msg("Handling Request POST FollowUserArtist")
-	var userPair UserPairFollowRelation
+	var userPair model.UserPairRelationship
 
 	if err := c.BindJSON(&userPair); err != nil {
 		log.Error().Stack().Err(err).Msg("Invalid Data")

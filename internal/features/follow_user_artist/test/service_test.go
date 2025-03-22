@@ -10,6 +10,8 @@ import (
 	mock_bus "followservice/internal/bus/test/mock"
 	"followservice/internal/features/follow_user_artist"
 	mock_follow_user_artist "followservice/internal/features/follow_user_artist/test/mock"
+	model "followservice/internal/model/domain"
+	"followservice/internal/model/events"
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog/log"
@@ -33,11 +35,11 @@ func setUpService(t *testing.T) {
 
 func TestFollowUserArtistWithService_WhenItReturnsSuccess(t *testing.T) {
 	setUpService(t)
-	newUserPair := &follow_user_artist.UserPairFollowRelation{
+	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}
-	expectedUserAFollowedUserBEvent := &follow_user_artist.UserAFollowedUserBEvent{
+	expectedUserAFollowedUserBEvent := &events.UserAFollowedUserBEvent{
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}
@@ -53,7 +55,7 @@ func TestFollowUserArtistWithService_WhenItReturnsSuccess(t *testing.T) {
 
 func TestErrorOnFollowUserArtistWithService_WhenAddingToRepositoryFails(t *testing.T) {
 	setUpService(t)
-	newUserPair := &follow_user_artist.UserPairFollowRelation{
+	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}
@@ -67,11 +69,11 @@ func TestErrorOnFollowUserArtistWithService_WhenAddingToRepositoryFails(t *testi
 
 func TestErrorOnFollowUserArtistWithService_WhenPublishingEventFails(t *testing.T) {
 	setUpService(t)
-	newUserPair := &follow_user_artist.UserPairFollowRelation{
+	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}
-	expectedUserAFollowedUserBEvent := &follow_user_artist.UserAFollowedUserBEvent{
+	expectedUserAFollowedUserBEvent := &events.UserAFollowedUserBEvent{
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}

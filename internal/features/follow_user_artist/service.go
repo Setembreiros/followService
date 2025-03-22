@@ -2,6 +2,8 @@ package follow_user_artist
 
 import (
 	"followservice/internal/bus"
+	model "followservice/internal/model/domain"
+	"followservice/internal/model/events"
 
 	"github.com/rs/zerolog/log"
 )
@@ -9,7 +11,7 @@ import (
 //go:generate mockgen -source=service.go -destination=test/mock/service.go
 
 type Repository interface {
-	AddUserRelation(data *UserPairFollowRelation) error
+	AddUserRelation(data *model.UserPairRelationship) error
 }
 
 type FollowUserArtistService struct {
@@ -24,7 +26,7 @@ func NewFollowUserArtistService(repository Repository, bus *bus.EventBus) *Follo
 	}
 }
 
-func (s *FollowUserArtistService) FollowUserArtist(userPair *UserPairFollowRelation) error {
+func (s *FollowUserArtistService) FollowUserArtist(userPair *model.UserPairRelationship) error {
 	err := s.repository.AddUserRelation(userPair)
 	if err != nil {
 		log.Error().Stack().Err(err).Msgf("Error adding user pair relation, %s -> %s", userPair.FollowerID, userPair.FolloweeID)
@@ -41,8 +43,8 @@ func (s *FollowUserArtistService) FollowUserArtist(userPair *UserPairFollowRelat
 	return nil
 }
 
-func (s *FollowUserArtistService) publishPostWasCreatedEvent(data *UserPairFollowRelation) error {
-	event := &UserAFollowedUserBEvent{
+func (s *FollowUserArtistService) publishPostWasCreatedEvent(data *model.UserPairRelationship) error {
+	event := &events.UserAFollowedUserBEvent{
 		FollowerID: data.FollowerID,
 		FolloweeID: data.FolloweeID,
 	}

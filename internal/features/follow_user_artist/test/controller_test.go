@@ -12,6 +12,7 @@ import (
 	"followservice/internal/bus"
 	"followservice/internal/features/follow_user_artist"
 	mock_follow_user_artist "followservice/internal/features/follow_user_artist/test/mock"
+	model "followservice/internal/model/domain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
@@ -39,7 +40,7 @@ func setUpHandler(t *testing.T) {
 
 func TestFollowUserArtist(t *testing.T) {
 	setUpHandler(t)
-	newUserPair := &follow_user_artist.UserPairFollowRelation{
+	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}
@@ -60,7 +61,7 @@ func TestFollowUserArtist(t *testing.T) {
 
 func TestInternalServerErrorOnFollowUserArtist(t *testing.T) {
 	setUpHandler(t)
-	newUserPair := &follow_user_artist.UserPairFollowRelation{
+	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}

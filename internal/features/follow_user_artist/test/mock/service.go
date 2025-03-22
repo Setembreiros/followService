@@ -5,7 +5,7 @@
 package mock_follow_user_artist
 
 import (
-	follow_user_artist "followservice/internal/features/follow_user_artist"
+	model "followservice/internal/model/domain"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,7 +35,7 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // AddUserRelation mocks base method.
-func (m *MockRepository) AddUserRelation(data *follow_user_artist.UserPairFollowRelation) error {
+func (m *MockRepository) AddUserRelation(data *model.UserPairRelationship) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddUserRelation", data)
 	ret0, _ := ret[0].(error)

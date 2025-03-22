@@ -1,6 +1,6 @@
 package database
 
-//go:generate mockgen -source=cache.go -destination=mock/cache.go
+//go:generate mockgen -source=cache.go -destination=test/mock/cache.go
 
 type Cache struct {
 	Client CacheClient

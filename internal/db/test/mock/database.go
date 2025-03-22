@@ -5,6 +5,9 @@
 package mock_database
 
 import (
+	model "followservice/internal/model/domain"
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -29,4 +32,18 @@ func NewMockDatabaseClient(ctrl *gomock.Controller) *MockDatabaseClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockDatabaseClient) EXPECT() *MockDatabaseClientMockRecorder {
 	return m.recorder
+}
+
+// CreateRelationship mocks base method.
+func (m *MockDatabaseClient) CreateRelationship(relationship *model.UserPairRelationship) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRelationship", relationship)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRelationship indicates an expected call of CreateRelationship.
+func (mr *MockDatabaseClientMockRecorder) CreateRelationship(relationship interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRelationship", reflect.TypeOf((*MockDatabaseClient)(nil).CreateRelationship), relationship)
 }

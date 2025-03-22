@@ -1,5 +1,7 @@
 package database
 
+import model "followservice/internal/model/domain"
+
 //go:generate mockgen -source=database.go -destination=test/mock/database.go
 
 type Database struct {
@@ -7,6 +9,7 @@ type Database struct {
 }
 
 type DatabaseClient interface {
+	CreateRelationship(relationship *model.UserPairRelationship) error
 }
 
 func NewDatabase(client DatabaseClient) *Database {

@@ -34,16 +34,16 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// AddUserRelation mocks base method.
-func (m *MockRepository) AddUserRelation(data *model.UserPairRelationship) error {
+// AddUserRelationship mocks base method.
+func (m *MockRepository) AddUserRelationship(data *model.UserPairRelationship) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddUserRelation", data)
+	ret := m.ctrl.Call(m, "AddUserRelationship", data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddUserRelation indicates an expected call of AddUserRelation.
-func (mr *MockRepositoryMockRecorder) AddUserRelation(data interface{}) *gomock.Call {
+// AddUserRelationship indicates an expected call of AddUserRelationship.
+func (mr *MockRepositoryMockRecorder) AddUserRelationship(data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserRelation", reflect.TypeOf((*MockRepository)(nil).AddUserRelation), data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserRelationship", reflect.TypeOf((*MockRepository)(nil).AddUserRelationship), data)
 }

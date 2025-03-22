@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -source=service.go -destination=test/mock/service.go
 
 type Repository interface {
-	AddUserRelation(data *model.UserPairRelationship) error
+	AddUserRelationship(data *model.UserPairRelationship) error
 }
 
 type FollowUserArtistService struct {
@@ -27,7 +27,7 @@ func NewFollowUserArtistService(repository Repository, bus *bus.EventBus) *Follo
 }
 
 func (s *FollowUserArtistService) FollowUserArtist(userPair *model.UserPairRelationship) error {
-	err := s.repository.AddUserRelation(userPair)
+	err := s.repository.AddUserRelationship(userPair)
 	if err != nil {
 		log.Error().Stack().Err(err).Msgf("Error adding user pair relation, %s -> %s", userPair.FollowerID, userPair.FolloweeID)
 		return err

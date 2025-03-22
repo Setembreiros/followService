@@ -44,7 +44,7 @@ func TestFollowUserArtistWithService_WhenItReturnsSuccess(t *testing.T) {
 		FolloweeID: newUserPair.FolloweeID,
 	}
 	expectedEvent, _ := createEvent("UserAFollowedUserBEvent", expectedUserAFollowedUserBEvent)
-	serviceRepository.EXPECT().AddUserRelation(newUserPair).Return(nil)
+	serviceRepository.EXPECT().AddUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(nil)
 
 	err := followUserArtistService.FollowUserArtist(newUserPair)
@@ -59,7 +59,7 @@ func TestErrorOnFollowUserArtistWithService_WhenAddingToRepositoryFails(t *testi
 		FollowerID: "usernameA",
 		FolloweeID: "usernameB",
 	}
-	serviceRepository.EXPECT().AddUserRelation(newUserPair).Return(errors.New("some error"))
+	serviceRepository.EXPECT().AddUserRelationship(newUserPair).Return(errors.New("some error"))
 
 	err := followUserArtistService.FollowUserArtist(newUserPair)
 
@@ -78,7 +78,7 @@ func TestErrorOnFollowUserArtistWithService_WhenPublishingEventFails(t *testing.
 		FolloweeID: newUserPair.FolloweeID,
 	}
 	expectedEvent, _ := createEvent("UserAFollowedUserBEvent", expectedUserAFollowedUserBEvent)
-	serviceRepository.EXPECT().AddUserRelation(newUserPair).Return(nil)
+	serviceRepository.EXPECT().AddUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(errors.New("some error"))
 
 	err := followUserArtistService.FollowUserArtist(newUserPair)

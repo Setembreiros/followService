@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 
+	model "followservice/internal/model/domain"
+
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"github.com/rs/zerolog/log"
 )
@@ -43,4 +45,8 @@ func (c Neo4jDBClient) verifyConnection() {
 		panic(err)
 	}
 	log.Info().Msg("Connection to Neo4j established.")
+}
+
+func (r *Neo4jDBClient) CreateRelationship(userPair *model.UserPairRelationship) error {
+	return nil
 }

@@ -128,6 +128,46 @@ func (c *Neo4jDBClient) CreateRelationship(userPair *model.UserPairRelationship)
 }
 
 func (c *Neo4jDBClient) DeleteRelationship(userPair *model.UserPairRelationship) error {
+	driver, err := c.getNeo4jDriver()
+	if err != nil {
+		return err
+	}
+	defer driver.Close(c.ctx)
+	session := driver.NewSession(c.ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+	defer session.Close(c.ctx)
+
+	_, err = session.ExecuteWrite(c.ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
+		query := `
+			MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followee:User {id: $followeeId})
+			DELETE r
+		`
+		params := map[string]interface{}{
+			"followerId": userPair.FollowerID,
+			"followeeId": userPair.FolloweeID,
+		}
+
+		result, err := tx.Run(c.ctx, query, params)
+		if err != nil {
+			return nil, err
+		}
+
+		summary, err := result.Consume(c.ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		if summary.Counters().RelationshipsDeleted() == 0 {
+			return nil, database.NewNotRelationshipDeletedError(userPair.FollowerID, userPair.FolloweeID)
+		}
+
+		return nil, nil
+	})
+
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Failed to delete follow relationship")
+		return err
+	}
+
 	return nil
 }
 
@@ -169,10 +209,7 @@ func (c *Neo4jDBClient) Clean() {
 
 	if err != nil {
 		log.Error().Stack().Err(err).Msg("Unexpected error cleaning the database")
-		return
 	}
-
-	return
 }
 
 func (c *Neo4jDBClient) getNeo4jDriver() (neo4j.DriverWithContext, error) {

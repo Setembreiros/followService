@@ -1,6 +1,6 @@
 package events
 
-type UserAFollowedUserBEvent struct {
+type UserAUnfollowedUserBEvent struct {
 	FollowerID string `json:"followerId"`
 	FolloweeID string `json:"followeeId"`
 }

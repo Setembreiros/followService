@@ -14,6 +14,11 @@ type NotRelationshipDeletedError struct {
 	followeeId string
 }
 
+type RelationshipAlreadyExistsError struct {
+	followerId string
+	followeeId string
+}
+
 func NewCleanDatabaseError() *CleanDatabaseError {
 	return &CleanDatabaseError{}
 }
@@ -32,6 +37,13 @@ func NewNotRelationshipDeletedError(followerId, followeeId string) *NotRelations
 	}
 }
 
+func NewRelationshipAlreadyExistsError(followerId, followeeId string) *RelationshipAlreadyExistsError {
+	return &RelationshipAlreadyExistsError{
+		followerId: followerId,
+		followeeId: followeeId,
+	}
+}
+
 func (e *CleanDatabaseError) Error() string {
 	errorMessage := "Unexpected error cleaning the database"
 	return errorMessage
@@ -44,5 +56,10 @@ func (e *NotRelationshipCreatedError) Error() string {
 
 func (e *NotRelationshipDeletedError) Error() string {
 	errorMessage := fmt.Sprintf("No relationship deleted, %s -> %s", e.followerId, e.followeeId)
+	return errorMessage
+}
+
+func (e *RelationshipAlreadyExistsError) Error() string {
+	errorMessage := fmt.Sprintf("Relationship already exists, %s -> %s", e.followerId, e.followeeId)
 	return errorMessage
 }

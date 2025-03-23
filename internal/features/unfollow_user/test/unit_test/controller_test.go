@@ -1,4 +1,4 @@
-package unit_test_ununfollow_user
+package unit_test_unfollow_user
 
 import (
 	"bytes"

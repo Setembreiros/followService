@@ -1,4 +1,4 @@
-package unit_test_follow_user_artist
+package unit_test_follow_user
 
 import (
 	"bytes"
@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"followservice/internal/bus"
-	"followservice/internal/features/follow_user_artist"
-	mock_follow_user_artist "followservice/internal/features/follow_user_artist/test/mock"
+	"followservice/internal/features/follow_user"
+	mock_follow_user "followservice/internal/features/follow_user/test/mock"
 	model "followservice/internal/model/domain"
 
 	"github.com/gin-gonic/gin"
@@ -21,24 +21,24 @@ import (
 )
 
 var controllerLoggerOutput bytes.Buffer
-var controllerService *mock_follow_user_artist.MockService
+var controllerService *mock_follow_user.MockService
 var controllerBus *bus.EventBus
-var controller *follow_user_artist.FollowUserArtistController
+var controller *follow_user.FollowUserController
 var apiResponse *httptest.ResponseRecorder
 var ginContext *gin.Context
 
 func setUpHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	controllerService = mock_follow_user_artist.NewMockService(ctrl)
+	controllerService = mock_follow_user.NewMockService(ctrl)
 	controllerBus = &bus.EventBus{}
 	log.Logger = log.Output(&controllerLoggerOutput)
-	controller = follow_user_artist.NewFollowUserArtistController(controllerService)
+	controller = follow_user.NewFollowUserController(controllerService)
 	gin.SetMode(gin.TestMode)
 	apiResponse = httptest.NewRecorder()
 	ginContext, _ = gin.CreateTestContext(apiResponse)
 }
 
-func TestFollowUserArtist(t *testing.T) {
+func TestFollowUser(t *testing.T) {
 	setUpHandler(t)
 	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
@@ -46,20 +46,20 @@ func TestFollowUserArtist(t *testing.T) {
 	}
 	data, _ := serializeData(newUserPair)
 	ginContext.Request = httptest.NewRequest(http.MethodPost, "/post", bytes.NewBuffer(data))
-	controllerService.EXPECT().FollowUserArtist(newUserPair).Return(nil)
+	controllerService.EXPECT().FollowUser(newUserPair).Return(nil)
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
 		"content": null
 	}`
 
-	controller.FollowUserArtist(ginContext)
+	controller.FollowUser(ginContext)
 
 	assert.Equal(t, apiResponse.Code, 200)
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))
 }
 
-func TestInternalServerErrorOnFollowUserArtist(t *testing.T) {
+func TestInternalServerErrorOnFollowUser(t *testing.T) {
 	setUpHandler(t)
 	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
@@ -68,14 +68,14 @@ func TestInternalServerErrorOnFollowUserArtist(t *testing.T) {
 	data, _ := serializeData(newUserPair)
 	ginContext.Request = httptest.NewRequest(http.MethodPost, "/post", bytes.NewBuffer(data))
 	expectedError := errors.New("some error")
-	controllerService.EXPECT().FollowUserArtist(newUserPair).Return(expectedError)
+	controllerService.EXPECT().FollowUser(newUserPair).Return(expectedError)
 	expectedBodyResponse := `{
 		"error": true,
 		"message": "` + expectedError.Error() + `",
 		"content": null
 	}`
 
-	controller.FollowUserArtist(ginContext)
+	controller.FollowUser(ginContext)
 
 	assert.Equal(t, apiResponse.Code, 500)
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))

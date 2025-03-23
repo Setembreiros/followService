@@ -1,4 +1,4 @@
-package unit_test_follow_user_artist
+package unit_test_follow_user
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 
 	database "followservice/internal/db"
 	mock_database "followservice/internal/db/test/mock"
-	"followservice/internal/features/follow_user_artist"
+	"followservice/internal/features/follow_user"
 	model "followservice/internal/model/domain"
 
 	"github.com/golang/mock/gomock"
@@ -14,12 +14,12 @@ import (
 )
 
 var dbClient *mock_database.MockDatabaseClient
-var followUserArtistRepository *follow_user_artist.FollowUserArtistRepository
+var followUserRepository *follow_user.FollowUserRepository
 
 func setUp(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	dbClient = mock_database.NewMockDatabaseClient(ctrl)
-	followUserArtistRepository = follow_user_artist.NewFollowUserArtistRepository(database.NewDatabase(dbClient))
+	followUserRepository = follow_user.NewFollowUserRepository(database.NewDatabase(dbClient))
 }
 
 func TestAddNewPostMetaDataInRepository_WhenItReturnsSuccess(t *testing.T) {
@@ -30,7 +30,7 @@ func TestAddNewPostMetaDataInRepository_WhenItReturnsSuccess(t *testing.T) {
 	}
 	dbClient.EXPECT().CreateRelationship(newUserPair).Return(errors.New("some error"))
 
-	err := followUserArtistRepository.AddUserRelationship(newUserPair)
+	err := followUserRepository.AddUserRelationship(newUserPair)
 
 	assert.NotNil(t, err)
 }
@@ -43,7 +43,7 @@ func TestErrorOnAddNewPostMetaDataInRepository_WhenDatabaseFails(t *testing.T) {
 	}
 	dbClient.EXPECT().CreateRelationship(newUserPair).Return(nil)
 
-	err := followUserArtistRepository.AddUserRelationship(newUserPair)
+	err := followUserRepository.AddUserRelationship(newUserPair)
 
 	assert.Nil(t, err)
 }

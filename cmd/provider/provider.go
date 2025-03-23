@@ -7,7 +7,7 @@ import (
 	"followservice/internal/api"
 	"followservice/internal/bus"
 	database "followservice/internal/db"
-	follow_user_artist "followservice/internal/features/follow_user_artist"
+	follow_user "followservice/internal/features/follow_user"
 )
 
 type Provider struct {
@@ -47,7 +47,7 @@ func (p *Provider) ProvideApiEndpoint(database *database.Database, bus *bus.Even
 
 func (p *Provider) ProvideApiControllers(database *database.Database, bus *bus.EventBus) []api.Controller {
 	return []api.Controller{
-		follow_user_artist.NewFollowUserArtistController(follow_user_artist.NewFollowUserArtistService(follow_user_artist.NewFollowUserArtistRepository(database), bus)),
+		follow_user.NewFollowUserController(follow_user.NewFollowUserService(follow_user.NewFollowUserRepository(database), bus)),
 	}
 }
 

@@ -1,4 +1,4 @@
-package integration_test_follow_user_artist
+package integration_test_follow_user
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"followservice/internal/bus"
 	mock_bus "followservice/internal/bus/test/mock"
 	database "followservice/internal/db"
-	"followservice/internal/features/follow_user_artist"
+	"followservice/internal/features/follow_user"
 	model "followservice/internal/model/domain"
 	"followservice/internal/model/events"
 	"net/http"
@@ -21,7 +21,7 @@ import (
 )
 
 var db *database.Database
-var controller *follow_user_artist.FollowUserArtistController
+var controller *follow_user.FollowUserController
 var apiResponse *httptest.ResponseRecorder
 var ginContext *gin.Context
 var serviceExternalBus *mock_bus.MockExternalBus
@@ -38,16 +38,16 @@ func setUpHandler(t *testing.T) {
 	// Real infrastructure and services
 	provider := provider.NewProvider("test")
 	db = provider.ProvideDb(ginContext)
-	repository := follow_user_artist.NewFollowUserArtistRepository(db)
-	service := follow_user_artist.NewFollowUserArtistService(repository, serviceBus)
-	controller = follow_user_artist.NewFollowUserArtistController(service)
+	repository := follow_user.NewFollowUserRepository(db)
+	service := follow_user.NewFollowUserService(repository, serviceBus)
+	controller = follow_user.NewFollowUserController(service)
 }
 
 func tearDown() {
 	db.Client.Clean()
 }
 
-func TestFollowUserArtist_WhenItReturnsSuccess(t *testing.T) {
+func TestFollowUser_WhenItReturnsSuccess(t *testing.T) {
 	setUpHandler(t)
 	defer tearDown()
 	newUserPair := &model.UserPairRelationship{
@@ -63,7 +63,7 @@ func TestFollowUserArtist_WhenItReturnsSuccess(t *testing.T) {
 	ginContext.Request = httptest.NewRequest(http.MethodPost, "/post", bytes.NewBuffer(data))
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(nil)
 
-	controller.FollowUserArtist(ginContext)
+	controller.FollowUser(ginContext)
 
 	assertSuccessResult(t)
 	assertRelationshipExists(t, newUserPair)

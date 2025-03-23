@@ -1,4 +1,4 @@
-package follow_user_artist
+package follow_user
 
 import (
 	"followservice/internal/api"
@@ -10,26 +10,26 @@ import (
 
 //go:generate mockgen -source=controller.go -destination=test/mock/controller.go
 
-type FollowUserArtistController struct {
+type FollowUserController struct {
 	service Service
 }
 
 type Service interface {
-	FollowUserArtist(userPair *model.UserPairRelationship) error
+	FollowUser(userPair *model.UserPairRelationship) error
 }
 
-func NewFollowUserArtistController(service Service) *FollowUserArtistController {
-	return &FollowUserArtistController{
+func NewFollowUserController(service Service) *FollowUserController {
+	return &FollowUserController{
 		service: service,
 	}
 }
 
-func (controller *FollowUserArtistController) Routes(routerGroup *gin.RouterGroup) {
-	routerGroup.POST("/follow", controller.FollowUserArtist)
+func (controller *FollowUserController) Routes(routerGroup *gin.RouterGroup) {
+	routerGroup.POST("/follow", controller.FollowUser)
 }
 
-func (controller *FollowUserArtistController) FollowUserArtist(c *gin.Context) {
-	log.Info().Msg("Handling Request POST FollowUserArtist")
+func (controller *FollowUserController) FollowUser(c *gin.Context) {
+	log.Info().Msg("Handling Request POST FollowUser")
 	var userPair model.UserPairRelationship
 
 	if err := c.BindJSON(&userPair); err != nil {
@@ -38,7 +38,7 @@ func (controller *FollowUserArtistController) FollowUserArtist(c *gin.Context) {
 		return
 	}
 
-	err := controller.service.FollowUserArtist(&userPair)
+	err := controller.service.FollowUser(&userPair)
 	if err != nil {
 		api.SendInternalServerError(c, err.Error())
 		return

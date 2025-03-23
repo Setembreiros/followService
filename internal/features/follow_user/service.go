@@ -1,4 +1,4 @@
-package follow_user_artist
+package follow_user
 
 import (
 	"followservice/internal/bus"
@@ -14,19 +14,19 @@ type Repository interface {
 	AddUserRelationship(data *model.UserPairRelationship) error
 }
 
-type FollowUserArtistService struct {
+type FollowUserService struct {
 	repository Repository
 	bus        *bus.EventBus
 }
 
-func NewFollowUserArtistService(repository Repository, bus *bus.EventBus) *FollowUserArtistService {
-	return &FollowUserArtistService{
+func NewFollowUserService(repository Repository, bus *bus.EventBus) *FollowUserService {
+	return &FollowUserService{
 		repository: repository,
 		bus:        bus,
 	}
 }
 
-func (s *FollowUserArtistService) FollowUserArtist(userPair *model.UserPairRelationship) error {
+func (s *FollowUserService) FollowUser(userPair *model.UserPairRelationship) error {
 	err := s.repository.AddUserRelationship(userPair)
 	if err != nil {
 		log.Error().Stack().Err(err).Msgf("Error adding user pair relation, %s -> %s", userPair.FollowerID, userPair.FolloweeID)
@@ -43,7 +43,7 @@ func (s *FollowUserArtistService) FollowUserArtist(userPair *model.UserPairRelat
 	return nil
 }
 
-func (s *FollowUserArtistService) publishPostWasCreatedEvent(data *model.UserPairRelationship) error {
+func (s *FollowUserService) publishPostWasCreatedEvent(data *model.UserPairRelationship) error {
 	event := &events.UserAFollowedUserBEvent{
 		FollowerID: data.FollowerID,
 		FolloweeID: data.FolloweeID,

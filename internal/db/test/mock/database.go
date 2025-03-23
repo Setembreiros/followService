@@ -60,6 +60,20 @@ func (mr *MockDatabaseClientMockRecorder) CreateRelationship(relationship interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRelationship", reflect.TypeOf((*MockDatabaseClient)(nil).CreateRelationship), relationship)
 }
 
+// DeleteRelationship mocks base method.
+func (m *MockDatabaseClient) DeleteRelationship(relationship *model.UserPairRelationship) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRelationship", relationship)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRelationship indicates an expected call of DeleteRelationship.
+func (mr *MockDatabaseClientMockRecorder) DeleteRelationship(relationship interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRelationship", reflect.TypeOf((*MockDatabaseClient)(nil).DeleteRelationship), relationship)
+}
+
 // RelationshipExists mocks base method.
 func (m *MockDatabaseClient) RelationshipExists(userPair *model.UserPairRelationship) (bool, error) {
 	m.ctrl.T.Helper()

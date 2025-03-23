@@ -12,6 +12,7 @@ type DatabaseClient interface {
 	Clean()
 	RelationshipExists(userPair *model.UserPairRelationship) (bool, error)
 	CreateRelationship(relationship *model.UserPairRelationship) error
+	DeleteRelationship(relationship *model.UserPairRelationship) error
 }
 
 func NewDatabase(client DatabaseClient) *Database {

@@ -22,20 +22,7 @@ func setUp(t *testing.T) {
 	followUserRepository = follow_user.NewFollowUserRepository(database.NewDatabase(dbClient))
 }
 
-func TestAddNewPostMetaDataInRepository_WhenItReturnsSuccess(t *testing.T) {
-	setUp(t)
-	newUserPair := &model.UserPairRelationship{
-		FollowerID: "usernameA",
-		FolloweeID: "usernameB",
-	}
-	dbClient.EXPECT().CreateRelationship(newUserPair).Return(errors.New("some error"))
-
-	err := followUserRepository.AddUserRelationship(newUserPair)
-
-	assert.NotNil(t, err)
-}
-
-func TestErrorOnAddNewPostMetaDataInRepository_WhenDatabaseFails(t *testing.T) {
+func TestAddUserRelationshipInRepository_WhenItReturnsSuccess(t *testing.T) {
 	setUp(t)
 	newUserPair := &model.UserPairRelationship{
 		FollowerID: "usernameA",
@@ -46,4 +33,17 @@ func TestErrorOnAddNewPostMetaDataInRepository_WhenDatabaseFails(t *testing.T) {
 	err := followUserRepository.AddUserRelationship(newUserPair)
 
 	assert.Nil(t, err)
+}
+
+func TestErrorOnAddUserRelationshipInRepository_WhenDatabaseFails(t *testing.T) {
+	setUp(t)
+	newUserPair := &model.UserPairRelationship{
+		FollowerID: "usernameA",
+		FolloweeID: "usernameB",
+	}
+	dbClient.EXPECT().CreateRelationship(newUserPair).Return(errors.New("some error"))
+
+	err := followUserRepository.AddUserRelationship(newUserPair)
+
+	assert.NotNil(t, err)
 }

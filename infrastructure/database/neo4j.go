@@ -127,6 +127,10 @@ func (c *Neo4jDBClient) CreateRelationship(userPair *model.UserPairRelationship)
 	return nil
 }
 
+func (c *Neo4jDBClient) DeleteRelationship(userPair *model.UserPairRelationship) error {
+	return nil
+}
+
 func (c *Neo4jDBClient) Clean() {
 	driver, err := c.getNeo4jDriver()
 	if err != nil {

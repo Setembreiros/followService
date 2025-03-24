@@ -1,43 +1,27 @@
 package unit_test_get_user_followers
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
 
-	"followservice/internal/bus"
 	"followservice/internal/features/get_user_followers"
 	mock_get_user_followers "followservice/internal/features/get_user_followers/test/mock"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
-	"github.com/golang/mock/gomock"
-	"github.com/rs/zerolog/log"
 )
 
-var controllerLoggerOutput bytes.Buffer
 var controllerService *mock_get_user_followers.MockService
-var controllerBus *bus.EventBus
 var controller *get_user_followers.GetUserFollowersController
-var apiResponse *httptest.ResponseRecorder
-var ginContext *gin.Context
 
 func setUpHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
+	setUp(t)
 	controllerService = mock_get_user_followers.NewMockService(ctrl)
-	controllerBus = &bus.EventBus{}
-	log.Logger = log.Output(&controllerLoggerOutput)
 	controller = get_user_followers.NewGetUserFollowersController(controllerService)
-	gin.SetMode(gin.TestMode)
-	apiResponse = httptest.NewRecorder()
-	ginContext, _ = gin.CreateTestContext(apiResponse)
 }
 
-func TestGetUserFollowers_WhenSuccess(t *testing.T) {
+func TestGetUserFollowersWithController_WhenSuccess(t *testing.T) {
 	setUpHandler(t)
 	expectedUsername := "usernameA"
 	expectedLastFollowerId := "follower4"
@@ -60,7 +44,7 @@ func TestGetUserFollowers_WhenSuccess(t *testing.T) {
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))
 }
 
-func TestGetUserFollowers_WhenSuccessWithDefaultPaginationParameters(t *testing.T) {
+func TestGetUserFollowersWithController_WhenSuccessWithDefaultPaginationParameters(t *testing.T) {
 	setUpHandler(t)
 	expectedUsername := "usernameA"
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s", expectedUsername), nil)
@@ -83,7 +67,7 @@ func TestGetUserFollowers_WhenSuccessWithDefaultPaginationParameters(t *testing.
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))
 }
 
-func TestInternalServerErrorOnGetUserFollowers_WhenServiceCallFails(t *testing.T) {
+func TestInternalServerErrorOnGetUserFollowersWithController_WhenServiceCallFails(t *testing.T) {
 	setUpHandler(t)
 	expectedUsername := "usernameA"
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s", expectedUsername), nil)
@@ -102,7 +86,7 @@ func TestInternalServerErrorOnGetUserFollowers_WhenServiceCallFails(t *testing.T
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))
 }
 
-func TestBadRequestErrorOnGetUserPosts_WhenLimitSmallerThanOne(t *testing.T) {
+func TestBadRequestErrorOnGetUserPostsWithController_WhenLimitSmallerThanOne(t *testing.T) {
 	setUpHandler(t)
 	username := "usernameA"
 	lastFollowerId := "follower4"
@@ -120,8 +104,4 @@ func TestBadRequestErrorOnGetUserPosts_WhenLimitSmallerThanOne(t *testing.T) {
 
 	assert.Equal(t, apiResponse.Code, 400)
 	assert.Equal(t, removeSpace(apiResponse.Body.String()), removeSpace(expectedBodyResponse))
-}
-
-func removeSpace(s string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(s, " ", ""), "\t", ""), "\n", "")
 }

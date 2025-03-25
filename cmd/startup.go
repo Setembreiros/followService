@@ -31,13 +31,13 @@ func (app *App) Startup() {
 
 	provider := provider.NewProvider(app.Env)
 	database := provider.ProvideDb(app.Ctx)
-	_ = provider.ProvideCache(app.Ctx)
+	cache := provider.ProvideCache(app.Ctx)
 	eventBus, err := provider.ProvideEventBus()
 	if err != nil {
 		os.Exit(1)
 	}
 	subscriptions := provider.ProvideSubscriptions()
-	apiEnpoint := provider.ProvideApiEndpoint(database, eventBus)
+	apiEnpoint := provider.ProvideApiEndpoint(database, cache, eventBus)
 	kafkaConsumer, err := provider.ProvideKafkaConsumer(eventBus)
 	if err != nil {
 		os.Exit(1)

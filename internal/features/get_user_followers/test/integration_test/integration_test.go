@@ -2,6 +2,7 @@ package integration_test_get_user_followers
 
 import (
 	"fmt"
+	"followservice/cmd/provider"
 	database "followservice/internal/db"
 	"followservice/internal/features/get_user_followers"
 	model "followservice/internal/model/domain"
@@ -27,7 +28,8 @@ func setUp(t *testing.T) {
 
 	// Real infrastructure and services
 	db = getPopulatedDb(t)
-	repository := get_user_followers.NewGetUserFollowersRepository(db)
+	provider := provider.NewProvider("test")
+	repository := get_user_followers.NewGetUserFollowersRepository(db, provider.ProvideCache(ginContext))
 	service := get_user_followers.NewGetUserFollowersService(repository)
 	controller = get_user_followers.NewGetUserFollowersController(service)
 }

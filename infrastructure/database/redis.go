@@ -44,3 +44,7 @@ func (c *RedisCacheClient) verifyConnection() {
 	}
 	log.Info().Msgf("Connection to Redis established.")
 }
+
+func (c *RedisCacheClient) GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, bool) {
+	return nil, "", false
+}

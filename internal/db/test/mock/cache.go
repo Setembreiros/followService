@@ -33,6 +33,18 @@ func (m *MockCacheClient) EXPECT() *MockCacheClientMockRecorder {
 	return m.recorder
 }
 
+// Clean mocks base method.
+func (m *MockCacheClient) Clean() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Clean")
+}
+
+// Clean indicates an expected call of Clean.
+func (mr *MockCacheClientMockRecorder) Clean() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clean", reflect.TypeOf((*MockCacheClient)(nil).Clean))
+}
+
 // GetUserFollowers mocks base method.
 func (m *MockCacheClient) GetUserFollowers(username, lastFollowerId string, limit int) ([]string, string, bool) {
 	m.ctrl.T.Helper()
@@ -47,4 +59,16 @@ func (m *MockCacheClient) GetUserFollowers(username, lastFollowerId string, limi
 func (mr *MockCacheClientMockRecorder) GetUserFollowers(username, lastFollowerId, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowers", reflect.TypeOf((*MockCacheClient)(nil).GetUserFollowers), username, lastFollowerId, limit)
+}
+
+// SetUserFollowers mocks base method.
+func (m *MockCacheClient) SetUserFollowers(username, lastFollowerId string, limit int, followers []string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetUserFollowers", username, lastFollowerId, limit, followers)
+}
+
+// SetUserFollowers indicates an expected call of SetUserFollowers.
+func (mr *MockCacheClientMockRecorder) SetUserFollowers(username, lastFollowerId, limit, followers interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserFollowers", reflect.TypeOf((*MockCacheClient)(nil).SetUserFollowers), username, lastFollowerId, limit, followers)
 }

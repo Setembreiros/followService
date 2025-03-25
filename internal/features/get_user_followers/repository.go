@@ -19,13 +19,15 @@ func NewGetUserFollowersRepository(dataRepository *database.Database, cache *dat
 func (r *GetUserFollowersRepository) GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, error) {
 	followers, newLastFollowerId, found := r.cache.Client.GetUserFollowers(username, lastFollowerId, limit)
 	if found {
-		return followers, lastFollowerId, nil
+		return followers, newLastFollowerId, nil
 	}
 
 	followers, newLastFollowerId, err := r.dataRepository.Client.GetUserFollowers(username, lastFollowerId, limit)
 	if err != nil {
 		return []string{}, "", err
 	}
+
+	r.cache.Client.SetUserFollowers(username, lastFollowerId, limit, followers)
 
 	return followers, newLastFollowerId, nil
 }

@@ -31,6 +31,7 @@ func TestGetUserFollowersFromRepository_WhenDatabaseReturnsSuccess(t *testing.T)
 	expectedLastFollowerId := "follower4"
 	cacheClient.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return([]string{}, "", false)
 	dbClient.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return(expectedFollowers, expectedLastFollowerId, nil)
+	cacheClient.EXPECT().SetUserFollowers(username, lastFollowerId, limit, expectedFollowers)
 
 	followers, lastFollowerId, err := repository.GetUserFollowers(username, lastFollowerId, limit)
 

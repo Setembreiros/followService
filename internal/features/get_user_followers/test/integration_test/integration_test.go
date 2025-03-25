@@ -2,12 +2,11 @@ package integration_test_get_user_followers
 
 import (
 	"fmt"
-	"followservice/cmd/provider"
 	database "followservice/internal/db"
 	"followservice/internal/features/get_user_followers"
 	model "followservice/internal/model/domain"
+	integration_test_arrange "followservice/test/integration_test_common/arrange"
 	integration_test_assert "followservice/test/integration_test_common/assert"
-	integration_test_builder "followservice/test/integration_test_common/builder"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var cache *database.Cache
 var db *database.Database
 var controller *get_user_followers.GetUserFollowersController
 var apiResponse *httptest.ResponseRecorder
@@ -27,31 +27,58 @@ func setUp(t *testing.T) {
 	ginContext, _ = gin.CreateTestContext(apiResponse)
 
 	// Real infrastructure and services
-	db = getPopulatedDb(t)
-	provider := provider.NewProvider("test")
-	repository := get_user_followers.NewGetUserFollowersRepository(db, provider.ProvideCache(ginContext))
+	cache = integration_test_arrange.CreateTestCache(t, ginContext)
+	db = integration_test_arrange.CreateTestDatabase(t, ginContext)
+	repository := get_user_followers.NewGetUserFollowersRepository(db, cache)
 	service := get_user_followers.NewGetUserFollowersService(repository)
 	controller = get_user_followers.NewGetUserFollowersController(service)
 }
 
 func tearDown() {
 	db.Client.Clean()
+	cache.Client.Clean()
 }
 
-func TestGetUserFollowers_WhenItReturnsSuccess(t *testing.T) {
+func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
 	setUp(t)
 	defer tearDown()
-	username := "usernameA"
-	LastFollowerId := "usernameB"
+	username := "username1"
+	lastFollowerId := "username2"
 	limit := 4
+	populateDb(t, username, lastFollowerId)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", username, lastFollowerId, limit), nil)
+	ginContext.Request = req
+	expectedFollowers := []string{"usernameA", "usernameB", "usernameC", "usernameD"}
+	expectedBodyResponse := `{
+		"error": false,
+		"message": "200 OK",
+		"content": {
+			"followers":["usernameA", "usernameB", "usernameC", "usernameD"],
+			"lastFollowerId":"usernameD"
+		}
+	}`
+
+	controller.GetUserFollowers(ginContext)
+
+	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
+	integration_test_assert.AssertCachedUserFollowersExists(t, cache, username, lastFollowerId, limit, expectedFollowers)
+}
+
+func TestGetUserFollowers_WhenCacheReturnsSuccess(t *testing.T) {
+	setUp(t)
+	defer tearDown()
+	username := "username1"
+	LastFollowerId := "username2"
+	limit := 4
+	populateCache(t, username, LastFollowerId, limit)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", username, LastFollowerId, limit), nil)
 	ginContext.Request = req
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
 		"content": {
-			"followers":["usernameC","usernameD","usernameE","usernameF"],
-			"lastFollowerId":"usernameF"
+			"followers":["usernameA","usernameB","usernameC","usernameD"],
+			"lastFollowerId":"usernameD"
 		}
 	}`
 
@@ -60,38 +87,39 @@ func TestGetUserFollowers_WhenItReturnsSuccess(t *testing.T) {
 	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
 }
 
-func getPopulatedDb(t *testing.T) *database.Database {
+func populateDb(t *testing.T, followeeId, lastFollowerId string) {
 	existingUserPairs := []*model.UserPairRelationship{
 		{
+			FollowerID: lastFollowerId,
+			FolloweeID: followeeId,
+		},
+		{
+			FollowerID: "usernameA",
+			FolloweeID: followeeId,
+		},
+		{
 			FollowerID: "usernameB",
-			FolloweeID: "usernameA",
+			FolloweeID: followeeId,
 		},
 		{
 			FollowerID: "usernameC",
-			FolloweeID: "usernameA",
+			FolloweeID: followeeId,
 		},
 		{
 			FollowerID: "usernameD",
-			FolloweeID: "usernameA",
+			FolloweeID: followeeId,
 		},
 		{
 			FollowerID: "usernameE",
-			FolloweeID: "usernameA",
-		},
-		{
-			FollowerID: "usernameF",
-			FolloweeID: "usernameA",
-		},
-		{
-			FollowerID: "usernameG",
-			FolloweeID: "usernameA",
+			FolloweeID: followeeId,
 		},
 	}
 
-	dbBuilder := integration_test_builder.NewDatabaseBuilder(t, ginContext)
 	for _, existingUserPair := range existingUserPairs {
-		dbBuilder.WithRelationship(existingUserPair)
+		integration_test_arrange.AddRelationshipToDatabase(t, db, existingUserPair)
 	}
+}
 
-	return dbBuilder.Build()
+func populateCache(t *testing.T, followeeId, lastFollowerId string, limit int) {
+	integration_test_arrange.AddCachedFollowersToCache(t, cache, followeeId, lastFollowerId, limit, []string{"usernameA", "usernameB", "usernameC", "usernameD"})
 }

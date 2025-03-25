@@ -7,6 +7,8 @@ type Cache struct {
 }
 
 type CacheClient interface {
+	Clean()
+	SetUserFollowers(username string, lastFollowerId string, limit int, followers []string)
 	GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, bool)
 }
 

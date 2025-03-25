@@ -9,6 +9,7 @@ import (
 	"followservice/internal/features/follow_user"
 	model "followservice/internal/model/domain"
 	"followservice/internal/model/events"
+	integration_test_arrange "followservice/test/integration_test_common/arrange"
 	integration_test_assert "followservice/test/integration_test_common/assert"
 	integration_test_builder "followservice/test/integration_test_common/builder"
 	"net/http"
@@ -35,7 +36,7 @@ func setUp(t *testing.T) {
 	ginContext, _ = gin.CreateTestContext(apiResponse)
 
 	// Real infrastructure and services
-	db = integration_test_builder.NewDatabaseBuilder(t, ginContext).Build()
+	db = integration_test_arrange.CreateTestDatabase(t, ginContext)
 	repository := follow_user.NewFollowUserRepository(db)
 	service := follow_user.NewFollowUserService(repository, serviceBus)
 	controller = follow_user.NewFollowUserController(service)

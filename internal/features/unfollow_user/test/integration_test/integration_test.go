@@ -7,6 +7,7 @@ import (
 	"followservice/internal/features/unfollow_user"
 	model "followservice/internal/model/domain"
 	"followservice/internal/model/events"
+	integration_test_arrange "followservice/test/integration_test_common/arrange"
 	integration_test_assert "followservice/test/integration_test_common/assert"
 	integration_test_builder "followservice/test/integration_test_common/builder"
 	"net/http"
@@ -34,11 +35,7 @@ func setUp(t *testing.T) {
 	ginContext, _ = gin.CreateTestContext(apiResponse)
 
 	// Real infrastructure and services
-	existingUserPair = &model.UserPairRelationship{
-		FollowerID: "usernameA",
-		FolloweeID: "usernameB",
-	}
-	db = integration_test_builder.NewDatabaseBuilder(t, ginContext).WithRelationship(existingUserPair).Build()
+	db = integration_test_arrange.CreateTestDatabase(t, ginContext)
 	repository := unfollow_user.NewUnfollowUserRepository(db)
 	service := unfollow_user.NewUnfollowUserService(repository, serviceBus)
 	controller = unfollow_user.NewUnfollowUserController(service)
@@ -51,6 +48,11 @@ func tearDown() {
 func TestUnfollowUser_WhenItReturnsSuccess(t *testing.T) {
 	setUp(t)
 	defer tearDown()
+	existingUserPair = &model.UserPairRelationship{
+		FollowerID: "usernameA",
+		FolloweeID: "usernameB",
+	}
+	integration_test_arrange.AddRelationshipToDatabase(t, db, existingUserPair)
 	req, _ := http.NewRequest("DELETE", "/follow?followerId=usernameA&followeeId=usernameB", nil)
 	ginContext.Request = req
 	expectedUserAUnfollowedUserBEvent := &events.UserAUnfollowedUserBEvent{

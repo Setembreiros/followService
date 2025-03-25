@@ -5,6 +5,8 @@
 package mock_database
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -29,4 +31,20 @@ func NewMockCacheClient(ctrl *gomock.Controller) *MockCacheClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCacheClient) EXPECT() *MockCacheClientMockRecorder {
 	return m.recorder
+}
+
+// GetUserFollowers mocks base method.
+func (m *MockCacheClient) GetUserFollowers(username, lastFollowerId string, limit int) ([]string, string, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserFollowers", username, lastFollowerId, limit)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(bool)
+	return ret0, ret1, ret2
+}
+
+// GetUserFollowers indicates an expected call of GetUserFollowers.
+func (mr *MockCacheClientMockRecorder) GetUserFollowers(username, lastFollowerId, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowers", reflect.TypeOf((*MockCacheClient)(nil).GetUserFollowers), username, lastFollowerId, limit)
 }

@@ -7,6 +7,7 @@ type Cache struct {
 }
 
 type CacheClient interface {
+	GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, bool)
 }
 
 func NewCache(client CacheClient) *Cache {

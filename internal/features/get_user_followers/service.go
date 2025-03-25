@@ -19,11 +19,11 @@ func NewGetUserFollowersService(repository Repository) *GetUserFollowersService 
 }
 
 func (s *GetUserFollowersService) GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, error) {
-	postMetadatas, lastFollowerId, err := s.repository.GetUserFollowers(username, lastFollowerId, limit)
+	followers, lastFollowerId, err := s.repository.GetUserFollowers(username, lastFollowerId, limit)
 	if err != nil {
 		log.Error().Stack().Err(err).Msgf("Error getting  %s's followers", username)
-		return postMetadatas, lastFollowerId, err
+		return followers, lastFollowerId, err
 	}
 
-	return postMetadatas, lastFollowerId, nil
+	return followers, lastFollowerId, nil
 }

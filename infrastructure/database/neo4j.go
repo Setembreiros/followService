@@ -212,8 +212,61 @@ func (c *Neo4jDBClient) Clean() {
 	}
 }
 
-func (c *Neo4jDBClient) GetUserFollowers(username string, lastPostId string, limit int) ([]string, string, error) {
-	return nil, "", nil
+func (c *Neo4jDBClient) GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, error) {
+	driver, err := c.getNeo4jDriver()
+	if err != nil {
+		return []string{}, "", err
+	}
+	defer driver.Close(c.ctx)
+
+	query := `
+		MATCH (followee:User {id: $followeeId})<-[:FOLLOWS]-(follower:User)
+		WHERE ($lastFollowerId IS NULL OR follower.id > $lastFollowerId)
+		RETURN follower.id AS followerId
+		ORDER BY follower.id
+		LIMIT $limit
+	`
+	params := map[string]interface{}{
+		"followeeId":     username,
+		"lastFollowerId": lastFollowerId,
+		"limit":          limit,
+	}
+
+	session := driver.NewSession(c.ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	defer session.Close(c.ctx)
+
+	result, err := session.Run(c.ctx, query, params)
+	if err != nil {
+		log.Error().Stack().Err(err).Msg("Get Followers Query exectution failed")
+		return []string{}, "", err
+	}
+
+	// Processar os resultados
+	var followers []string
+	var lastId string
+
+	for result.Next(c.ctx) {
+		record := result.Record()
+		followerId, ok := record.Get("followerId")
+		if !ok {
+			continue
+		}
+
+		followerIdStr, ok := followerId.(string)
+		if !ok {
+			continue
+		}
+
+		followers = append(followers, followerIdStr)
+		lastId = followerIdStr
+	}
+
+	if err = result.Err(); err != nil {
+		log.Error().Stack().Err(err).Msg("Error while processing results")
+		return []string{}, "", err
+	}
+
+	return followers, lastId, nil
 }
 
 func (c *Neo4jDBClient) getNeo4jDriver() (neo4j.DriverWithContext, error) {

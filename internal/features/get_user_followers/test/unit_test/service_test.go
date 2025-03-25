@@ -11,12 +11,12 @@ import (
 )
 
 var serviceRepository *mock_get_user_followers.MockRepository
-var getUserFollowersService *get_user_followers.GetUserFollowersService
+var service *get_user_followers.GetUserFollowersService
 
 func setUpService(t *testing.T) {
 	setUp(t)
 	serviceRepository = mock_get_user_followers.NewMockRepository(ctrl)
-	getUserFollowersService = get_user_followers.NewGetUserFollowersService(serviceRepository)
+	service = get_user_followers.NewGetUserFollowersService(serviceRepository)
 }
 
 func TestGetUserFollowersWithService_WhenSuccess(t *testing.T) {
@@ -28,7 +28,7 @@ func TestGetUserFollowersWithService_WhenSuccess(t *testing.T) {
 	expectedLastFollowerId := "follower7"
 	serviceRepository.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return(expectedFollowers, expectedLastFollowerId, nil)
 
-	followers, lastFollowerId, err := getUserFollowersService.GetUserFollowers(username, lastFollowerId, limit)
+	followers, lastFollowerId, err := service.GetUserFollowers(username, lastFollowerId, limit)
 
 	assert.Nil(t, err)
 	assert.Equal(t, followers, expectedFollowers)
@@ -44,7 +44,7 @@ func TestErrorOnGetUserFollowersWithService_WhenGetUserFollowersFails(t *testing
 	expectedLastFollowerId := ""
 	serviceRepository.EXPECT().GetUserFollowers(username, lastFollowerId, limit).Return(expectedFollowers, expectedLastFollowerId, errors.New("some error"))
 
-	followers, lastFollowerId, err := getUserFollowersService.GetUserFollowers(username, lastFollowerId, limit)
+	followers, lastFollowerId, err := service.GetUserFollowers(username, lastFollowerId, limit)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, followers, expectedFollowers)

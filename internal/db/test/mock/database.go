@@ -74,6 +74,22 @@ func (mr *MockDatabaseClientMockRecorder) DeleteRelationship(relationship interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRelationship", reflect.TypeOf((*MockDatabaseClient)(nil).DeleteRelationship), relationship)
 }
 
+// GetUserFollowers mocks base method.
+func (m *MockDatabaseClient) GetUserFollowers(username, lastPostId string, limit int) ([]string, string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserFollowers", username, lastPostId, limit)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUserFollowers indicates an expected call of GetUserFollowers.
+func (mr *MockDatabaseClientMockRecorder) GetUserFollowers(username, lastPostId, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFollowers", reflect.TypeOf((*MockDatabaseClient)(nil).GetUserFollowers), username, lastPostId, limit)
+}
+
 // RelationshipExists mocks base method.
 func (m *MockDatabaseClient) RelationshipExists(userPair *model.UserPairRelationship) (bool, error) {
 	m.ctrl.T.Helper()

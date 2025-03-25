@@ -212,6 +212,10 @@ func (c *Neo4jDBClient) Clean() {
 	}
 }
 
+func (c *Neo4jDBClient) GetUserFollowers(username string, lastPostId string, limit int) ([]string, string, error) {
+	return nil, "", nil
+}
+
 func (c *Neo4jDBClient) getNeo4jDriver() (neo4j.DriverWithContext, error) {
 	driver, err := neo4j.NewDriverWithContext(
 		c.dbUri,

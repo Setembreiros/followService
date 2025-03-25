@@ -9,7 +9,7 @@ import (
 )
 
 func AssertSuccessResult(t *testing.T, apiResponse *httptest.ResponseRecorder, expectedBodyResponse string) {
-	assert.Equal(t, apiResponse.Code, 200)
+	assert.Equal(t, 200, apiResponse.Code)
 	assert.Equal(t, removeSpace(expectedBodyResponse), removeSpace(apiResponse.Body.String()))
 }
 

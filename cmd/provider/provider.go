@@ -43,24 +43,20 @@ func (p *Provider) ProvideKafkaConsumer(eventBus *bus.EventBus) (*kafka.KafkaCon
 	return kafka.NewKafkaConsumer(brokers, eventBus)
 }
 
-func (p *Provider) ProvideApiEndpoint(database *database.Database, cache *database.Cache, bus *bus.EventBus) *api.Api {
-	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(database, cache, bus))
+func (p *Provider) ProvideApiEndpoint(database *database.Database, bus *bus.EventBus) *api.Api {
+	return api.NewApiEndpoint(p.env, p.ProvideApiControllers(database, bus))
 }
 
-func (p *Provider) ProvideApiControllers(database *database.Database, cache *database.Cache, bus *bus.EventBus) []api.Controller {
+func (p *Provider) ProvideApiControllers(database *database.Database, bus *bus.EventBus) []api.Controller {
 	return []api.Controller{
 		follow_user.NewFollowUserController(follow_user.NewFollowUserService(follow_user.NewFollowUserRepository(database), bus)),
 		unfollow_user.NewUnfollowUserController(unfollow_user.NewUnfollowUserService(unfollow_user.NewUnfollowUserRepository(database), bus)),
-		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(database, cache))),
+		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(database))),
 	}
 }
 
 func (p *Provider) ProvideDb(ctx context.Context) *database.Database {
 	return database.NewDatabase(dbInfra.NewNeo4jClient("bolt://localhost:7687", "neo4j", "contrasinal", ctx))
-}
-
-func (p *Provider) ProvideCache(ctx context.Context) *database.Cache {
-	return database.NewCache(dbInfra.NewRedisClient("localhost:6379", "", ctx))
 }
 
 func (p *Provider) kafkaBrokers() []string {

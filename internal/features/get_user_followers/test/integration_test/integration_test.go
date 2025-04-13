@@ -15,7 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var cache *database.Cache
 var db *database.Database
 var controller *get_user_followers.GetUserFollowersController
 var apiResponse *httptest.ResponseRecorder
@@ -28,16 +27,14 @@ func setUp(t *testing.T) {
 	ginContext, _ = gin.CreateTestContext(apiResponse)
 
 	// Real infrastructure and services
-	cache = integration_test_arrange.CreateTestCache(t, ginContext)
 	db = integration_test_arrange.CreateTestDatabase(t, ginContext)
-	repository := get_user_followers.NewGetUserFollowersRepository(db, cache)
+	repository := get_user_followers.NewGetUserFollowersRepository(db)
 	service := get_user_followers.NewGetUserFollowersService(repository)
 	controller = get_user_followers.NewGetUserFollowersController(service)
 }
 
 func tearDown() {
 	db.Client.Clean()
-	cache.Client.Clean()
 }
 
 func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
@@ -53,7 +50,6 @@ func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
 	u.Add("lastFollowerId", lastFollowerId)
 	u.Add("limit", strconv.Itoa(limit))
 	ginContext.Request.URL.RawQuery = u.Encode()
-	expectedFollowers := []string{"USERA", "USERB"}
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
@@ -66,36 +62,7 @@ func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
 	controller.GetUserFollowers(ginContext)
 
 	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
-	integration_test_assert.AssertCachedUserFollowersExists(t, cache, username, lastFollowerId, limit, expectedFollowers)
 }
-
-func TestGetUserFollowers_WhenCacheReturnsSuccess(t *testing.T) {
-	setUp(t)
-	defer tearDown()
-	username := "username1"
-	lastFollowerId := "username2"
-	limit := 4
-	populateCache(t, username, lastFollowerId, limit)
-	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
-	ginContext.Params = []gin.Param{{Key: "username", Value: username}}
-	u := url.Values{}
-	u.Add("lastFollowerId", lastFollowerId)
-	u.Add("limit", strconv.Itoa(limit))
-	ginContext.Request.URL.RawQuery = u.Encode()
-	expectedBodyResponse := `{
-		"error": false,
-		"message": "200 OK",
-		"content": {
-			"followers":["usernameA","usernameB","usernameC","usernameD"],
-			"lastFollowerId":"usernameD"
-		}
-	}`
-
-	controller.GetUserFollowers(ginContext)
-
-	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
-}
-
 func populateDb(t *testing.T, followeeId, lastFollowerId string) {
 	existingUserPairs := []*model.UserPairRelationship{
 		{
@@ -115,8 +82,4 @@ func populateDb(t *testing.T, followeeId, lastFollowerId string) {
 	for _, existingUserPair := range existingUserPairs {
 		integration_test_arrange.AddRelationshipToDatabase(t, db, existingUserPair)
 	}
-}
-
-func populateCache(t *testing.T, followeeId, lastFollowerId string, limit int) {
-	integration_test_arrange.AddCachedFollowersToCache(t, cache, followeeId, lastFollowerId, limit, []string{"usernameA", "usernameB", "usernameC", "usernameD"})
 }

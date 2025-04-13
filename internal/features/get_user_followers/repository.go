@@ -6,28 +6,19 @@ import (
 
 type GetUserFollowersRepository struct {
 	dataRepository *database.Database
-	cache          *database.Cache
 }
 
-func NewGetUserFollowersRepository(dataRepository *database.Database, cache *database.Cache) *GetUserFollowersRepository {
+func NewGetUserFollowersRepository(dataRepository *database.Database) *GetUserFollowersRepository {
 	return &GetUserFollowersRepository{
 		dataRepository: dataRepository,
-		cache:          cache,
 	}
 }
 
 func (r *GetUserFollowersRepository) GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, error) {
-	followers, newLastFollowerId, found := r.cache.Client.GetUserFollowers(username, lastFollowerId, limit)
-	if found {
-		return followers, newLastFollowerId, nil
-	}
-
 	followers, newLastFollowerId, err := r.dataRepository.Client.GetUserFollowers(username, lastFollowerId, limit)
 	if err != nil {
 		return []string{}, "", err
 	}
-
-	r.cache.Client.SetUserFollowers(username, lastFollowerId, limit, followers)
 
 	return followers, newLastFollowerId, nil
 }

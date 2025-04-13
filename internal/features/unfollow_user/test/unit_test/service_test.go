@@ -43,7 +43,7 @@ func TestUnfollowUserWithService_WhenItReturnsSuccess(t *testing.T) {
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}
-	expectedEvent, _ := createEvent("UserAUnfollowedUserBEvent", expectedUserAUnfollowedUserBEvent)
+	expectedEvent, _ := createEvent(events.UserAUnfollowedUserBEventName, expectedUserAUnfollowedUserBEvent)
 	serviceRepository.EXPECT().RemoveUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(nil)
 
@@ -77,7 +77,7 @@ func TestErrorOnUnfollowUserWithService_WhenPublishingEventFails(t *testing.T) {
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}
-	expectedEvent, _ := createEvent("UserAUnfollowedUserBEvent", expectedUserAUnfollowedUserBEvent)
+	expectedEvent, _ := createEvent(events.UserAUnfollowedUserBEventName, expectedUserAUnfollowedUserBEvent)
 	serviceRepository.EXPECT().RemoveUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(errors.New("some error"))
 

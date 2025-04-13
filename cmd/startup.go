@@ -31,7 +31,6 @@ func (app *App) Startup() {
 
 	provider := provider.NewProvider(app.Env)
 	database := provider.ProvideDb(app.Ctx)
-	_ = provider.ProvideCache(app.Ctx)
 	eventBus, err := provider.ProvideEventBus()
 	if err != nil {
 		os.Exit(1)

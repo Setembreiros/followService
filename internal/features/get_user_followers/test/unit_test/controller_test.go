@@ -2,13 +2,15 @@ package unit_test_get_user_followers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 	"testing"
 
 	"followservice/internal/features/get_user_followers"
 	mock_get_user_followers "followservice/internal/features/get_user_followers/test/mock"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 )
 
@@ -23,11 +25,15 @@ func setUpHandler(t *testing.T) {
 
 func TestGetUserFollowersWithController_WhenSuccess(t *testing.T) {
 	setUpHandler(t)
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
 	expectedUsername := "usernameA"
 	expectedLastFollowerId := "follower4"
 	expectedLimit := 4
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", expectedUsername, expectedLastFollowerId, expectedLimit), nil)
-	ginContext.Request = req
+	ginContext.Params = []gin.Param{{Key: "username", Value: expectedUsername}}
+	u := url.Values{}
+	u.Add("lastFollowerId", expectedLastFollowerId)
+	u.Add("limit", strconv.Itoa(expectedLimit))
+	ginContext.Request.URL.RawQuery = u.Encode()
 	controllerService.EXPECT().GetUserFollowers(expectedUsername, expectedLastFollowerId, expectedLimit).Return([]string{"follower5", "follower6", "follower7"}, "follower7", nil)
 	expectedBodyResponse := `{
 		"error": false,
@@ -46,9 +52,9 @@ func TestGetUserFollowersWithController_WhenSuccess(t *testing.T) {
 
 func TestGetUserFollowersWithController_WhenSuccessWithDefaultPaginationParameters(t *testing.T) {
 	setUpHandler(t)
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
 	expectedUsername := "usernameA"
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s", expectedUsername), nil)
-	ginContext.Request = req
+	ginContext.Params = []gin.Param{{Key: "username", Value: expectedUsername}}
 	expectedDefaultLastFollowerId := ""
 	expectedDefaultLimit := 12
 	controllerService.EXPECT().GetUserFollowers("usernameA", expectedDefaultLastFollowerId, expectedDefaultLimit).Return([]string{"follower5", "follower6", "follower7"}, "follower7", nil)
@@ -69,9 +75,9 @@ func TestGetUserFollowersWithController_WhenSuccessWithDefaultPaginationParamete
 
 func TestInternalServerErrorOnGetUserFollowersWithController_WhenServiceCallFails(t *testing.T) {
 	setUpHandler(t)
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
 	expectedUsername := "usernameA"
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s", expectedUsername), nil)
-	ginContext.Request = req
+	ginContext.Params = []gin.Param{{Key: "username", Value: expectedUsername}}
 	expectedError := errors.New("some error")
 	controllerService.EXPECT().GetUserFollowers("usernameA", "", 12).Return([]string{}, "", expectedError)
 	expectedBodyResponse := `{
@@ -88,11 +94,15 @@ func TestInternalServerErrorOnGetUserFollowersWithController_WhenServiceCallFail
 
 func TestBadRequestErrorOnGetUserPostsWithController_WhenLimitSmallerThanOne(t *testing.T) {
 	setUpHandler(t)
-	username := "usernameA"
-	lastFollowerId := "follower4"
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
+	expectedUsername := "usernameA"
+	expectedLastFollowerId := "follower4"
 	wrongLimit := 0
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", username, lastFollowerId, wrongLimit), nil)
-	ginContext.Request = req
+	ginContext.Params = []gin.Param{{Key: "username", Value: expectedUsername}}
+	u := url.Values{}
+	u.Add("lastFollowerId", expectedLastFollowerId)
+	u.Add("limit", strconv.Itoa(wrongLimit))
+	ginContext.Request.URL.RawQuery = u.Encode()
 	expectedError := "Invalid pagination parameters, limit has to be greater than 0"
 	expectedBodyResponse := `{
 		"error": true,

@@ -1,7 +1,6 @@
 package integration_test_get_user_followers
 
 import (
-	"fmt"
 	database "followservice/internal/db"
 	"followservice/internal/features/get_user_followers"
 	model "followservice/internal/model/domain"
@@ -9,6 +8,8 @@ import (
 	integration_test_assert "followservice/test/integration_test_common/assert"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -42,19 +43,23 @@ func tearDown() {
 func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
 	setUp(t)
 	defer tearDown()
-	username := "username1"
-	lastFollowerId := "username2"
+	username := "USERC"
+	lastFollowerId := "USER"
 	limit := 4
 	populateDb(t, username, lastFollowerId)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", username, lastFollowerId, limit), nil)
-	ginContext.Request = req
-	expectedFollowers := []string{"usernameA", "usernameB", "usernameC", "usernameD"}
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
+	ginContext.Params = []gin.Param{{Key: "username", Value: username}}
+	u := url.Values{}
+	u.Add("lastFollowerId", lastFollowerId)
+	u.Add("limit", strconv.Itoa(limit))
+	ginContext.Request.URL.RawQuery = u.Encode()
+	expectedFollowers := []string{"USERA", "USERB"}
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
 		"content": {
-			"followers":["usernameA", "usernameB", "usernameC", "usernameD"],
-			"lastFollowerId":"usernameD"
+			"followers":["USERA", "USERB"],
+			"lastFollowerId":"USERB"
 		}
 	}`
 
@@ -68,11 +73,15 @@ func TestGetUserFollowers_WhenCacheReturnsSuccess(t *testing.T) {
 	setUp(t)
 	defer tearDown()
 	username := "username1"
-	LastFollowerId := "username2"
+	lastFollowerId := "username2"
 	limit := 4
-	populateCache(t, username, LastFollowerId, limit)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/followers?username=%s&lastFollowerId=%s&limit=%d", username, LastFollowerId, limit), nil)
-	ginContext.Request = req
+	populateCache(t, username, lastFollowerId, limit)
+	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
+	ginContext.Params = []gin.Param{{Key: "username", Value: username}}
+	u := url.Values{}
+	u.Add("lastFollowerId", lastFollowerId)
+	u.Add("limit", strconv.Itoa(limit))
+	ginContext.Request.URL.RawQuery = u.Encode()
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
@@ -94,23 +103,11 @@ func populateDb(t *testing.T, followeeId, lastFollowerId string) {
 			FolloweeID: followeeId,
 		},
 		{
-			FollowerID: "usernameA",
+			FollowerID: "USERA",
 			FolloweeID: followeeId,
 		},
 		{
-			FollowerID: "usernameB",
-			FolloweeID: followeeId,
-		},
-		{
-			FollowerID: "usernameC",
-			FolloweeID: followeeId,
-		},
-		{
-			FollowerID: "usernameD",
-			FolloweeID: followeeId,
-		},
-		{
-			FollowerID: "usernameE",
+			FollowerID: "USERB",
 			FolloweeID: followeeId,
 		},
 	}

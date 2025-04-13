@@ -30,7 +30,7 @@ func NewGetUserFollowersController(service Service) *GetUserFollowersController 
 }
 
 func (controller *GetUserFollowersController) Routes(routerGroup *gin.RouterGroup) {
-	routerGroup.GET("/followers", controller.GetUserFollowers)
+	routerGroup.GET("/followers/:username", controller.GetUserFollowers)
 }
 
 func (controller *GetUserFollowersController) GetUserFollowers(c *gin.Context) {
@@ -53,7 +53,7 @@ func (controller *GetUserFollowersController) GetUserFollowers(c *gin.Context) {
 }
 
 func getQueryParameters(c *gin.Context) (string, string, int) {
-	username := c.Query("username")
+	username := c.Param("username")
 	if username == "" {
 		api.SendBadRequest(c, "Missing username parameter")
 		return "", "", 0

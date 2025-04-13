@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-//go:generate mockgen -source=bus.go -destination=mock/bus.go
+//go:generate mockgen -source=bus.go -destination=test/mock/bus.go
 
 type Event struct {
 	Type string

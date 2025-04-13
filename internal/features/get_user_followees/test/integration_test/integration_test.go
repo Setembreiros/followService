@@ -1,8 +1,8 @@
-package integration_test_get_user_followers
+package integration_test_get_user_followees
 
 import (
 	database "followservice/internal/db"
-	"followservice/internal/features/get_user_followers"
+	"followservice/internal/features/get_user_followees"
 	model "followservice/internal/model/domain"
 	integration_test_arrange "followservice/test/integration_test_common/arrange"
 	integration_test_assert "followservice/test/integration_test_common/assert"
@@ -16,7 +16,7 @@ import (
 )
 
 var db *database.Database
-var controller *get_user_followers.GetUserFollowersController
+var controller *get_user_followees.GetUserFolloweesController
 var apiResponse *httptest.ResponseRecorder
 var ginContext *gin.Context
 
@@ -28,55 +28,54 @@ func setUp(t *testing.T) {
 
 	// Real infrastructure and services
 	db = integration_test_arrange.CreateTestDatabase(t, ginContext)
-	repository := get_user_followers.NewGetUserFollowersRepository(db)
-	service := get_user_followers.NewGetUserFollowersService(repository)
-	controller = get_user_followers.NewGetUserFollowersController(service)
+	repository := get_user_followees.NewGetUserFolloweesRepository(db)
+	service := get_user_followees.NewGetUserFolloweesService(repository)
+	controller = get_user_followees.NewGetUserFolloweesController(service)
 }
 
 func tearDown() {
 	db.Client.Clean()
 }
 
-func TestGetUserFollowers_WhenDatabaseReturnsSuccess(t *testing.T) {
+func TestGetUserFollowees_WhenDatabaseReturnsSuccess(t *testing.T) {
 	setUp(t)
 	defer tearDown()
 	username := "USERC"
-	lastFollowerId := "USER"
+	lastFolloweeId := "USER"
 	limit := 4
-	populateDb(t, username, lastFollowerId)
-	ginContext.Request, _ = http.NewRequest("GET", "/followers", nil)
+	populateDb(t, username, lastFolloweeId)
+	ginContext.Request, _ = http.NewRequest("GET", "/followees", nil)
 	ginContext.Params = []gin.Param{{Key: "username", Value: username}}
 	u := url.Values{}
-	u.Add("lastFollowerId", lastFollowerId)
+	u.Add("lastFolloweeId", lastFolloweeId)
 	u.Add("limit", strconv.Itoa(limit))
 	ginContext.Request.URL.RawQuery = u.Encode()
 	expectedBodyResponse := `{
 		"error": false,
 		"message": "200 OK",
 		"content": {
-			"followers":["USERA", "USERB"],
-			"lastFollowerId":"USERB"
+			"followees":["USERA", "USERB"],
+			"lastFolloweeId":"USERB"
 		}
 	}`
 
-	controller.GetUserFollowers(ginContext)
+	controller.GetUserFollowees(ginContext)
 
 	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
 }
-
-func populateDb(t *testing.T, followeeId, lastFollowerId string) {
+func populateDb(t *testing.T, followerId, lastFolloweeId string) {
 	existingUserPairs := []*model.UserPairRelationship{
 		{
-			FollowerID: lastFollowerId,
-			FolloweeID: followeeId,
+			FollowerID: followerId,
+			FolloweeID: lastFolloweeId,
 		},
 		{
-			FollowerID: "USERA",
-			FolloweeID: followeeId,
+			FollowerID: followerId,
+			FolloweeID: "USERA",
 		},
 		{
-			FollowerID: "USERB",
-			FolloweeID: followeeId,
+			FollowerID: followerId,
+			FolloweeID: "USERB",
 		},
 	}
 

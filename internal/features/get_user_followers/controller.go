@@ -34,7 +34,7 @@ func (controller *GetUserFollowersController) Routes(routerGroup *gin.RouterGrou
 }
 
 func (controller *GetUserFollowersController) GetUserFollowers(c *gin.Context) {
-	log.Info().Msg("Handling Request POST GetUserFollowers")
+	log.Info().Msg("Handling Request GET GetUserFollowers")
 	username, lastFollowerId, limit := getQueryParameters(c)
 	if username == "" {
 		return

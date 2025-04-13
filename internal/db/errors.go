@@ -2,14 +2,25 @@ package database
 
 import "fmt"
 
+type CleanDatabaseError struct{}
+
 type NotRelationshipCreatedError struct {
 	followerId string
-	followeeId any
+	followeeId string
 }
 
-func (e *NotRelationshipCreatedError) Error() string {
-	errorMessage := fmt.Sprintf("No relationship created, %s -> %s", e.followerId, e.followeeId)
-	return errorMessage
+type NotRelationshipDeletedError struct {
+	followerId string
+	followeeId string
+}
+
+type RelationshipAlreadyExistsError struct {
+	followerId string
+	followeeId string
+}
+
+func NewCleanDatabaseError() *CleanDatabaseError {
+	return &CleanDatabaseError{}
 }
 
 func NewNotRelationshipCreatedError(followerId, followeeId string) *NotRelationshipCreatedError {
@@ -19,13 +30,36 @@ func NewNotRelationshipCreatedError(followerId, followeeId string) *NotRelations
 	}
 }
 
-type CleanDatabaseError struct{}
+func NewNotRelationshipDeletedError(followerId, followeeId string) *NotRelationshipDeletedError {
+	return &NotRelationshipDeletedError{
+		followerId: followerId,
+		followeeId: followeeId,
+	}
+}
+
+func NewRelationshipAlreadyExistsError(followerId, followeeId string) *RelationshipAlreadyExistsError {
+	return &RelationshipAlreadyExistsError{
+		followerId: followerId,
+		followeeId: followeeId,
+	}
+}
 
 func (e *CleanDatabaseError) Error() string {
-	errorMessage := fmt.Sprint("Unexpected error cleaning the database")
+	errorMessage := "Unexpected error cleaning the database"
 	return errorMessage
 }
 
-func NewCleanDatabaseError() *CleanDatabaseError {
-	return &CleanDatabaseError{}
+func (e *NotRelationshipCreatedError) Error() string {
+	errorMessage := fmt.Sprintf("No relationship created, %s -> %s", e.followerId, e.followeeId)
+	return errorMessage
+}
+
+func (e *NotRelationshipDeletedError) Error() string {
+	errorMessage := fmt.Sprintf("No relationship deleted, %s -> %s", e.followerId, e.followeeId)
+	return errorMessage
+}
+
+func (e *RelationshipAlreadyExistsError) Error() string {
+	errorMessage := fmt.Sprintf("Relationship already exists, %s -> %s", e.followerId, e.followeeId)
+	return errorMessage
 }

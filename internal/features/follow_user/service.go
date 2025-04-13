@@ -33,7 +33,7 @@ func (s *FollowUserService) FollowUser(userPair *model.UserPairRelationship) err
 		return err
 	}
 
-	err = s.publishPostWasCreatedEvent(userPair)
+	err = s.publishUserAFollowedUserBEvent(userPair)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (s *FollowUserService) FollowUser(userPair *model.UserPairRelationship) err
 	return nil
 }
 
-func (s *FollowUserService) publishPostWasCreatedEvent(data *model.UserPairRelationship) error {
+func (s *FollowUserService) publishUserAFollowedUserBEvent(data *model.UserPairRelationship) error {
 	event := &events.UserAFollowedUserBEvent{
 		FollowerID: data.FollowerID,
 		FolloweeID: data.FolloweeID,

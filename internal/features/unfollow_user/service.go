@@ -49,9 +49,9 @@ func (s *UnfollowUserService) publishUserAUnfollowedUserBEvent(data *model.UserP
 		FolloweeID: data.FolloweeID,
 	}
 
-	err := s.bus.Publish("UserAUnfollowedUserBEvent", event)
+	err := s.bus.Publish(events.UserAUnfollowedUserBEventName, event)
 	if err != nil {
-		log.Error().Stack().Err(err).Msgf("Publishing UserAUnfollowedUserBEvent failed, %s -> %s", event.FollowerID, event.FolloweeID)
+		log.Error().Stack().Err(err).Msgf("Publishing %s failed, %s -> %s", events.UserAUnfollowedUserBEventName, event.FollowerID, event.FolloweeID)
 		return err
 	}
 

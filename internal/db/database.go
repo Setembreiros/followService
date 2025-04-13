@@ -13,6 +13,8 @@ type DatabaseClient interface {
 	RelationshipExists(userPair *model.UserPairRelationship) (bool, error)
 	CreateRelationship(relationship *model.UserPairRelationship) error
 	DeleteRelationship(relationship *model.UserPairRelationship) error
+	GetUserFollowers(username string, lastFollowerId string, limit int) ([]string, string, error)
+	GetUserFollowees(username string, lastFolloweeId string, limit int) ([]string, string, error)
 }
 
 func NewDatabase(client DatabaseClient) *Database {

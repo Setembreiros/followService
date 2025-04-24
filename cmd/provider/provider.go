@@ -8,6 +8,7 @@ import (
 	"followservice/internal/bus"
 	database "followservice/internal/db"
 	"followservice/internal/features/follow_user"
+	"followservice/internal/features/get_user_followers"
 	"followservice/internal/features/unfollow_user"
 )
 
@@ -50,15 +51,12 @@ func (p *Provider) ProvideApiControllers(database *database.Database, bus *bus.E
 	return []api.Controller{
 		follow_user.NewFollowUserController(follow_user.NewFollowUserService(follow_user.NewFollowUserRepository(database), bus)),
 		unfollow_user.NewUnfollowUserController(unfollow_user.NewUnfollowUserService(unfollow_user.NewUnfollowUserRepository(database), bus)),
+		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(database))),
 	}
 }
 
 func (p *Provider) ProvideDb(ctx context.Context) *database.Database {
 	return database.NewDatabase(dbInfra.NewNeo4jClient("bolt://localhost:7687", "neo4j", "contrasinal", ctx))
-}
-
-func (p *Provider) ProvideCache(ctx context.Context) *database.Cache {
-	return database.NewCache(dbInfra.NewRedisClient("localhost:6379", "", ctx))
 }
 
 func (p *Provider) kafkaBrokers() []string {

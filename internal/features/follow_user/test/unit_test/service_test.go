@@ -43,7 +43,7 @@ func TestFollowUserWithService_WhenItReturnsSuccess(t *testing.T) {
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}
-	expectedEvent, _ := createEvent("UserAFollowedUserBEvent", expectedUserAFollowedUserBEvent)
+	expectedEvent, _ := createEvent(events.UserAFollowedUserBEventName, expectedUserAFollowedUserBEvent)
 	serviceRepository.EXPECT().AddUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(nil)
 
@@ -77,7 +77,7 @@ func TestErrorOnFollowUserWithService_WhenPublishingEventFails(t *testing.T) {
 		FollowerID: newUserPair.FollowerID,
 		FolloweeID: newUserPair.FolloweeID,
 	}
-	expectedEvent, _ := createEvent("UserAFollowedUserBEvent", expectedUserAFollowedUserBEvent)
+	expectedEvent, _ := createEvent(events.UserAFollowedUserBEventName, expectedUserAFollowedUserBEvent)
 	serviceRepository.EXPECT().AddUserRelationship(newUserPair).Return(nil)
 	serviceExternalBus.EXPECT().Publish(expectedEvent).Return(errors.New("some error"))
 

@@ -45,7 +45,7 @@ func TestFollowUser(t *testing.T) {
 		FolloweeID: "usernameB",
 	}
 	data, _ := serializeData(newUserPair)
-	ginContext.Request = httptest.NewRequest(http.MethodPost, "/post", bytes.NewBuffer(data))
+	ginContext.Request = httptest.NewRequest(http.MethodPost, "/follow", bytes.NewBuffer(data))
 	controllerService.EXPECT().FollowUser(newUserPair).Return(nil)
 	expectedBodyResponse := `{
 		"error": false,
@@ -66,7 +66,7 @@ func TestInternalServerErrorOnFollowUser(t *testing.T) {
 		FolloweeID: "usernameB",
 	}
 	data, _ := serializeData(newUserPair)
-	ginContext.Request = httptest.NewRequest(http.MethodPost, "/post", bytes.NewBuffer(data))
+	ginContext.Request = httptest.NewRequest(http.MethodPost, "/follow", bytes.NewBuffer(data))
 	expectedError := errors.New("some error")
 	controllerService.EXPECT().FollowUser(newUserPair).Return(expectedError)
 	expectedBodyResponse := `{

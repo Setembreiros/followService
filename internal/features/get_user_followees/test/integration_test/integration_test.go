@@ -63,6 +63,7 @@ func TestGetUserFollowees_WhenDatabaseReturnsSuccess(t *testing.T) {
 
 	integration_test_assert.AssertSuccessResult(t, apiResponse, expectedBodyResponse)
 }
+
 func populateDb(t *testing.T, followerId, lastFolloweeId string) {
 	existingUserPairs := []*model.UserPairRelationship{
 		{

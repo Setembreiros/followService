@@ -7,6 +7,7 @@ import (
 	"followservice/internal/api"
 	"followservice/internal/bus"
 	database "followservice/internal/db"
+	"followservice/internal/features/check_relationship"
 	"followservice/internal/features/follow_user"
 	"followservice/internal/features/get_user_followees"
 	"followservice/internal/features/get_user_followers"
@@ -54,6 +55,7 @@ func (p *Provider) ProvideApiControllers(database *database.Database, bus *bus.E
 		unfollow_user.NewUnfollowUserController(unfollow_user.NewUnfollowUserService(unfollow_user.NewUnfollowUserRepository(database), bus)),
 		get_user_followers.NewGetUserFollowersController(get_user_followers.NewGetUserFollowersService(get_user_followers.NewGetUserFollowersRepository(database))),
 		get_user_followees.NewGetUserFolloweesController(get_user_followees.NewGetUserFolloweesService(get_user_followees.NewGetUserFolloweesRepository(database))),
+		check_relationship.NewCheckRelationshipController(check_relationship.NewCheckRelationshipService(check_relationship.NewCheckRelationshipRepository(database))),
 	}
 }
 

@@ -229,7 +229,7 @@ func (c *Neo4jDBClient) GetUserFollowers(username string, lastFollowerId string,
 	params := map[string]interface{}{
 		"followeeId":     username,
 		"lastFollowerId": lastFollowerId,
-		"limit":          limit,
+		"limit":          limit + 1,
 	}
 
 	session := driver.NewSession(c.ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
@@ -246,6 +246,10 @@ func (c *Neo4jDBClient) GetUserFollowers(username string, lastFollowerId string,
 	var lastId string
 
 	for result.Next(c.ctx) {
+		if len(followers) >= limit {
+			lastId = followers[len(followers)-1]
+			break
+		}
 		record := result.Record()
 		followerId, ok := record.Get("followerId")
 		if !ok {
@@ -258,7 +262,6 @@ func (c *Neo4jDBClient) GetUserFollowers(username string, lastFollowerId string,
 		}
 
 		followers = append(followers, followerIdStr)
-		lastId = followerIdStr
 	}
 
 	if err = result.Err(); err != nil {
@@ -286,7 +289,7 @@ func (c *Neo4jDBClient) GetUserFollowees(username string, lastFolloweeId string,
 	params := map[string]interface{}{
 		"followerId":     username,
 		"lastFolloweeId": lastFolloweeId,
-		"limit":          limit,
+		"limit":          limit + 1,
 	}
 
 	session := driver.NewSession(c.ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
@@ -303,6 +306,10 @@ func (c *Neo4jDBClient) GetUserFollowees(username string, lastFolloweeId string,
 	var lastId string
 
 	for result.Next(c.ctx) {
+		if len(followees) >= limit {
+			lastId = followees[len(followees)-1]
+			break
+		}
 		record := result.Record()
 		followeeId, ok := record.Get("followeeId")
 		if !ok {
@@ -315,7 +322,6 @@ func (c *Neo4jDBClient) GetUserFollowees(username string, lastFolloweeId string,
 		}
 
 		followees = append(followees, followeeIdStr)
-		lastId = followeeIdStr
 	}
 
 	if err = result.Err(); err != nil {
